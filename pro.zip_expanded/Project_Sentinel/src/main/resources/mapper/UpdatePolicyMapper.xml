@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "C:/Users/chlru/Desktop/Study/Java/Library/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.policy.UpdatePolicyMapper">
+    <select id="getPolicyDetailsById" resultType="com.example.demo.model.policy.UpdatePolicyEntity">
+        SELECT * FROM ips_policy WHERE detected_no = #{detected_no}
+    </select>
+
+	<update id="updatePolicy">	
+	    UPDATE ips_policy
+	    SET 
+	    	detected_name = #{detected_name},
+	        action = #{action},
+	        src_ip = #{src_ip},
+	        src_port = #{src_port},
+        	content1 = #{content1},
+        	content2 = #{content2},
+        	content3 = #{content3},
+	        base_time = #{base_time},
+	        base_limit = #{base_limit},
+	        level = #{level},
+	        detail = #{detail},
+	        end_time = #{end_time},
+	        to_sip = #{to_sip},
+	        to_sp = #{to_sp},
+	        dst_ip = #{dst_ip},
+	        base_size = 0,
+	        dst_port = #{dst_port}
+	    WHERE
+	        detected_no = #{detected_no}
+	</update>
+	
+	<update id="updateEnableStatus">
+	    UPDATE ips_policy SET enable = 0 WHERE end_time &lt; NOW() AND enable = 1
+	</update>
+</mapper>

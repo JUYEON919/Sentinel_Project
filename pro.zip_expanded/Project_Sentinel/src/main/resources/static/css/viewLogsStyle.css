@@ -1,0 +1,195 @@
+@charset "UTF-8";
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+body {
+	padding: 30px;
+	height: 100%;
+	width: 100%;
+}
+/* 큰틀 비율*/
+.header {
+	height: 5%;
+}
+
+/* 글자앞 |  */
+.hline {
+	border-bottom: 1px solid #5e5e5e;
+	background: #447294;
+	padding: 6px 0;
+	color: #fff;
+	font-size: 16px;
+	width: 100%;
+	height: 35px;
+}
+
+h2{
+	margin-left: 10px;
+}
+
+h3 {
+	margin-left: 10px;
+}
+
+.hline1 {
+	border-left: 5px solid #447294;
+}
+
+/* 로그상세보기 제일 바깥영역 */
+.log_InfoBox{
+	margin-top: 15px;
+	border: 1px solid #5e5e5e;
+	border-radius: 5px;
+	padding: 20px;
+	height: 93%;
+}
+.packetAllBox {
+	display: flex;
+	height: 90%;
+	margin-top: 10px;
+}
+/*********************************************** 왼쪽 */
+.left_Headers{
+	border: 1px solid #5e5e5e;
+	overflow-y: scroll;
+	height: 100%;
+	width: 50%;
+}
+
+.left_Headers p{
+	padding: 4px 10px;
+	font-weight: 600;
+}
+
+/******************************************** 오른쪽 */
+.right_packetInfo {
+	margin-left: 1%;
+	height: 100%;
+	width: 50%;
+}
+.packetInfo_Box {
+	display: flex;
+	width: 100%;
+	overflow-y: scroll;
+	height: 85%;
+	padding:5px;
+}
+.left_packetInfo{
+	width: 50%;
+	height: 100%;
+	padding: 4px 10px;
+	border-right: 1px solid #5e5e5e;
+}
+/*        오른쪽                 */
+.right_packetInfo{
+	width: 50%;
+	height: 100%;
+	padding: 4px 10px;
+}
+.right_top{
+	width: 100%;
+	height: 55%;
+	border: 1px solid #5e5e5e;
+}
+.right_packetInfo span{
+	width: 100%;
+	height: 100%;
+	padding: -3px;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+.right_bottom{
+	margin-top: 3%;
+	width: 100%;
+	height: 43%;
+	box-sizing: border-box;
+	border: 1px solid #5e5e5e;
+}
+/*********************************** 오른쪽아래 attackInfo 공격정보 */
+
+.attackHeader{
+	background: #447294;
+	color: #fff;
+	padding: 5px 0;
+	width: 100%;
+	height: 35px;
+	font-size: 16px;
+}
+.attackBody{
+	width: 100%;
+	height: 85%;
+	padding: 15px;
+	display: flex;
+}
+.attackBody table{
+	width: 100%;
+	 border-collapse: collapse;
+}
+.attackBody tr{
+	font-size:14px;
+	font-weight: 600;
+	padding:  5px;
+	text-align: left;
+	height: 30px;
+}
+
+.linebox {
+    border: 1px solid #ccc; 
+    padding: 5px; 
+    border-radius: 5px;
+}
+/*표 간격*/
+
+.w20{
+	width:20%;
+	font-weight: 600;
+	font-size: 15px;
+}
+.w33{
+	width: 33%;
+
+}
+
+.w80{
+	width: 80%;
+}
+.h20{
+	height: 15px;
+}
+.h40{
+	height: 60px;
+}
+
+/* 돌아가기 버튼 */
+.buttonbox {
+	float: right;
+	height: 10%;
+	margin-top: 15px;
+	margin-right: 1%;
+}
+
+.buttonbox button {
+	padding: 7px 18px;
+ 	cursor: pointer;
+ 	border: none;
+ 	border-radius: 5px;
+ 	font-weight: bold;
+}
+
+.btn {
+	background-color: #5e5e5e;
+	color: white;
+}
+
+/* Payload 하이라이트 */
+.highlight {
+  background-color: #4aabed;
+  color: #fff;
+}
+
+p:hover{
+  background-color: #4aabed;
+  color: #fff;
+}

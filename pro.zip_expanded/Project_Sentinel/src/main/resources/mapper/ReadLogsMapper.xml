@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "C:/Users/chlru/Desktop/Study/Java/Library/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.log.ReadLogsMapper">
+	<select id="findFilteredLogs" resultType="com.example.demo.model.log.ReadLogsEntity">
+	    SELECT * FROM ${tableName}
+	    <where>
+	        <if test="src_ip != null">
+	            AND src_ip = #{src_ip}
+	        </if>
+	        <if test="src_port != null">
+	        	AND src_port = #{src_port}
+	        </if>
+	        <if test="dst_ip != null">
+	        	AND dst_ip = #{dst_ip}
+	        </if>
+	        <if test="dst_port != null">
+	        	AND dst_port = #{dst_port}
+	        </if>
+			<if test="detected_name != null and detected_name != ''">
+				AND detected_name LIKE CONCAT('%', #{detected_name}, '%')
+			</if>
+	        <if test="level != null">
+	            AND level = #{level}
+	        </if>
+	        <if test="action != null">
+	            AND action = #{action}
+	        </if>
+	        <if test="startDate != null and endDate != null">
+	            AND time BETWEEN #{startDate} AND #{endDate}
+	        </if>
+	    </where>
+	    ORDER BY time ASC, log_index ASC
+	</select>
+	
+	<select id="getBinaryData" resultType="com.example.demo.model.log.ReadLogsEntity">
+	    SELECT packet_bin FROM ${tableName} 
+	    WHERE log_index = #{log_index}
+	</select>
+	
+	<select id="findByDetectedNo" resultType="com.example.demo.model.log.ReadLogsEntity">
+        SELECT detected_no FROM ${tableName}
+        WHERE log_index = #{log_index}
+    </select>
+	
+	<select id="getLastLogs" resultType="com.example.demo.model.log.ReadLogsEntity">
+	    SELECT * FROM ${tableName}
+	    <where>
+	        <if test="startDate != null and endDate != null">
+	            AND time BETWEEN #{startDate} AND #{endDate}
+	        </if>
+	    </where>
+	    ORDER BY log_index DESC
+	</select>
+	
+	<select id="getWeekLogs" parameterType="map" resultType="com.example.demo.model.log.ReadLogsEntity">
+    	SELECT * FROM ${tableName}
+    	<where>
+        	<if test="startDate != null and endDate != null">
+            	AND time BETWEEN #{startDate} AND #{endDate}
+        	</if>
+   		</where>
+    	ORDER BY log_index DESC
+	</select>
+</mapper>

@@ -1,0 +1,25 @@
+@charset "UTF-8";
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html, body {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	color: #444;
+	font: 14px 'Nanum Gothic', sans-serif;
+}
+
+/*html에 추가해주기
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grandiflora+One&family=Nanum+Gothic&display=swap" rel="stylesheet">
+//css
+font-family: 'Nanum Gothic', sans-serif;
+*/

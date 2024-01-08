@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/css/commonStyle.css">
+	<link rel="stylesheet" href="/css/viewLogsStyle.css">
+	<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+	<link rel="manifest" href="/json/manifest.json">
+
+	<title>Sentinel</title>
+</head>
+
+<body>
+	<div class="header">
+		<div class="hline1">
+			<h2>로그</h2>
+		</div>
+	</div>
+	<div class="log_InfoBox">
+		<div class="hline1">
+			<h3>패킷정보</h3>
+		</div>
+		<div class="packetAllBox">
+			<div id="packetHeader" class="left_Headers">
+
+				<!-- Ethernet Header -->
+				<div class="hline">
+					<h3>Ethernet Header</h3>
+				</div>
+				<p id="Destination_MAC_Addr" th:text="'Destination MAC Addr: ' + ${packetHeader[0].destinationMacAddr}">
+				</p>
+				<p id="Source_MAC_Addr" th:text="'Source MAC Addr: ' + ${packetHeader[0].sourceMacAddr}"></p>
+				<p id="Ethernet_Type" th:text="'Ethernet Type: ' + ${packetHeader[0].ethernetType}"></p>
+
+				<!-- IP Header -->
+				<div class="hline" style="margin-top: 10px;">
+					<h3>IP Header</h3>
+				</div>
+				<p id="Version" th:text="'Version: ' + ${packetHeader[1].version}"></p>
+				<p id="Header_Length" th:text="'Header Length: ' + ${packetHeader[1].headerLength}"></p>
+				<p id="Type_of_Service" th:text="'Type of Service: ' + ${packetHeader[1].typeOfService}"></p>
+				<p id="Datagram_Length" th:text="'Datagram Length: ' + ${packetHeader[1].datagramLength}"></p>
+				<p id="Identification" th:text="'Identification: ' + ${packetHeader[1].identification}"></p>
+				<p id="Ip_Flags" th:text="'IP Flags: ' + ${packetHeader[1].flags}"></p>
+				<p id="Fragment_Offset" th:text="'Fragment Offset: ' + ${packetHeader[1].fragmentOffset}"></p>
+				<p id="Time_To_Live" th:text="'Time To Live(TTL): ' + ${packetHeader[1].ttl}"></p>
+				<p id="Datagram_Protocol" th:text="'Datagram Protocol: ' + ${packetHeader[1].datagramProtocol}"></p>
+				<p id="Header_Checksum" th:text="'Checksum: ' + ${packetHeader[1].checksum}"></p>
+				<p id="Source_IP" th:text="'Source IP: ' + ${packetHeader[1].sourceIp}"></p>
+				<p id="Destination_IP" th:text="'Destination IP: ' + ${packetHeader[1].destinationIp}"></p>
+
+				<!-- TCP Header -->
+				<th:block th:if="${#lists.size(packetHeader) > 2}">
+					<div class="hline" style="margin-top: 10px;">
+						<h3>TCP Header</h3>
+					</div>
+					<p id="Source_Port" th:text="'Source Port: ' + ${packetHeader[2].sourcePort}"></p>
+					<p id="Destination_Port" th:text="'Destination Port: ' + ${packetHeader[2].destinationPort}"></p>
+					<p id="Sequence_Number" th:text="'Sequence Number: ' + ${packetHeader[2].sequenceNumber}"></p>
+					<p id="Acknowledgment_Number"
+						th:text="'Acknowledgment Number: ' + ${packetHeader[2].acknowledgmentNumber}"></p>
+					<p id="Data_Offset" th:text="'Data Offset: ' + ${packetHeader[2].dataOffset}"></p>
+					<p id="Reserved(RSV)" th:text="'Reserved(RSV): ' + ${packetHeader[2].reserved}"></p>
+					<p id="Flags" th:text="'flags: ' + ${packetHeader[2].flags}"></p>
+					<p id="Window_Size" th:text="'Window Size: ' + ${packetHeader[2].windowSize}"></p>
+					<p id="Checksum" th:text="'Checksum: ' + ${packetHeader[2].checksum}"></p>
+					<p id="Urgent_Pointer" th:text="'Urgent Pointer: ' + ${packetHeader[2].urgentPointer}"></p>
+				</th:block>
+			</div>
+
+			<div class="right_packetInfo">
+				<div class="right_top">
+					<div class="hline">
+						<h3>패킷 상세 정보</h3>
+					</div>
+					<div class="packetInfo_Box">
+						<div class="left_packetInfo">
+							<span th:text="${binaryData}"></span>
+						</div>
+						<div class="right_packetInfo">
+							<span th:text="${asciiData}"></span>
+						</div>
+					</div>
+				</div>
+				<div class="right_bottom">
+					<div class="attackHeader">
+						<h3>공격정보</h3>
+					</div>
+					<div class="attackBody">
+						<table>
+							<tr>
+								<td class="w20"><span>탐지명 :</span></td>
+								<td class="w80 linebox" colspan="3"><span
+										th:text="${policyDetectedName} ?: '정보 없음'"></span></td>
+							</tr>
+							<tr style="height: 5px;"></tr>
+							<tr>
+								<td class="w20"><span>위험등급 :</span></td>
+								<td class="w33 linebox">
+									<span th:switch="${policyLevel}">
+										<span th:case="0">하</span>
+										<span th:case="1">중</span>
+										<span th:case="2">상</span>
+										<span th:case="3">최상</span>
+										<span th:case="*">정보 없음</span>
+									</span>
+								</td>
+								<td class="w20"><span style="margin-left: 15px;">처리방법 :</span></td>
+								<td class="w33 linebox">
+									<span th:switch="${policyAction}">
+										<span th:case="0">로그</span>
+										<span th:case="1">로그+차단</span>
+										<span th:case="*">정보 없음</span>
+									</span>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="4" class="h20"><span>내용 :</span></td>
+							</tr>
+							<tr class="detailTextB">
+								<td class="h40 linebox" colspan="4">
+									<span th:text="${policyDetail} ?: '해당 정책의 상세 정보가 없습니다.'"></span>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="buttonbox">
+			<button class="btn" onclick="cancel()">돌아가기</button>
+		</div>
+	</div>
+
+	<script>
+		const headers = {
+			"Destination_MAC_Addr": [0, 17],
+			"Source_MAC_Addr": [18, 35],
+			"Ethernet_Type": [36, 41],
+			"Version": [42, 43],
+			"Header_Length": [43, 44],
+			"Type_of_Service": [45, 47],
+			"Datagram_Length": [48, 53],
+			"Identification": [54, 59],
+			"Ip_Flags": [60, 61],
+			"Fragment_Offset": [61, 65],
+			"Time_To_Live": [66, 69],
+			"Datagram_Protocol": [69, 71],
+			"Header_Checksum": [72, 77],
+			"Source_IP": [78, 89],
+			"Destination_IP": [90, 101],
+			"Source_Port": [102, 107],
+			"Destination_Port": [108, 113],
+			"Sequence_Number": [114, 125],
+			"Acknowledgment_Number": [126, 137],
+			"Data_Offset": [138, 139],
+			"Reserved(RSV)": [139, 140],
+			"Flags": [141, 143],
+			"Window_Size": [144, 149],
+			"Checksum": [150, 155],
+			"Urgent_Pointer": [156, 161]
+		};
+
+		// 각 헤더에 대한 클릭 이벤트를 추가하는 함수
+		function addHeaderClickEvent(headerId, headerRange) {
+			let headerElement = document.getElementById(headerId);
+
+			headerElement.addEventListener('click', function () {
+				highlightBinaryData(headerRange);
+			});
+		}
+
+		for (let field in headers) {
+			addHeaderClickEvent(field, headers[field]);
+		}
+
+
+		// 주어진 범위의 binaryData를 강조하는 함수
+		function highlightBinaryData(range) {
+			let binaryDataElement = document.querySelector('.left_packetInfo span');
+
+			// 모든 하이라이트 제거
+			removeHighlight();
+
+			// 강조할 부분을 highlight 클래스로 감싸서 강조
+			let beforeHighlight = binaryDataElement.textContent.substring(0, range[0]);
+			let highlightedText = binaryDataElement.textContent.substring(range[0], range[1]);
+			let afterHighlight = binaryDataElement.textContent.substring(range[1]);
+
+			binaryDataElement.innerHTML = beforeHighlight + `<span class="highlight">${highlightedText}</span>` + afterHighlight;
+		}
+
+		// binaryData의 강조를 제거하는 함수
+		function removeHighlight() {
+			let highlightedElements = document.querySelectorAll('.highlight');
+
+			highlightedElements.forEach(element => {
+				element.outerHTML = element.innerHTML;
+			});
+		}
+
+		function cancel() {
+			window.history.back();
+		}
+	</script>
+</body>
+
+</html>

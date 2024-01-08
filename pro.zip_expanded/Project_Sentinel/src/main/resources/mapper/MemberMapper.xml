@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "C:/Users/chlru/Desktop/Study/Java/Library/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.user.MemberMapper">
+    <select id="signin" resultType="com.example.demo.model.user.MemberEntity">
+        SELECT * FROM user_info WHERE id = #{id}
+    </select>
+    
+    <update id="updatePassword">
+        UPDATE user_info
+        SET password = #{password}
+        WHERE id = #{id}
+    </update>
+</mapper>

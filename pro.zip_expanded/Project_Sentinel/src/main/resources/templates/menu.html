@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0 , minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<!-- 나눔고딕 글자체 사용 -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Grandiflora+One&family=Nanum+Gothic&display=swap"
+		rel="stylesheet">
+	<!-- 파비콘 -->
+	<link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+	<link rel="manifest" href="/json/manifest.json">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+	<!-- 스타일시트 -->
+	<link rel="stylesheet" href="/css/commonStyle.css">
+	<link rel="stylesheet" href="/css/menuStyle.css">
+
+	<title>Sentinel</title>
+</head>
+
+<body>
+	<div class="header">
+		<a href="#">
+			<img src="/img/logo.png" alt="로고" class="logo" onclick="loadContent('/admin/home')">
+		</a>
+		<a href="/logout" onclick="return confirmLogout();" class="logout">
+		</a>
+	</div>
+	<div class="sidebar">
+		<div class="menubox">
+			<a href="#" class="menu-item" onclick="loadContent('/admin/home')">
+				<div class="icon" id="homeIcon"></div>
+				<p>홈</p>
+			</a>
+		</div>
+		<div class="menubox">
+			<a href="#" class="menu-item" onclick="loadContent('/admin/menu/readPolicy')">
+				<div class="icon" id="policyIcon"></div>
+				<p>정책구성</p>
+			</a>
+		</div>
+		<div class="menubox">
+			<a href="#" class="menu-item" onclick="loadContent('/admin/menu/readLogs')">
+				<div class="icon" id="logIcon"></div>
+				<p>로그조회</p>
+			</a>
+		</div>
+		<div class="menubox">
+			<a href="#" class="menu-item" onclick="loadContent('/admin/menu/setup')">
+				<div class="icon" id="settingsIcon"></div>
+				<p class="setting">설정</p>
+			</a>
+		</div>
+	</div>
+
+	<div class="content" id="dynamicContent">
+		<iframe id="contentFrame" src=""></iframe>
+	</div>
+
+	<script>
+		function loadContent(url) {
+			var menuItems = document.querySelectorAll('.menu-item');
+			menuItems.forEach(function (menuItem) {
+				menuItem.classList.remove('selected');
+			});
+
+			// 이전 선택된 메뉴 아이템에 대한 쿼리 수정
+			var currentMenuItem = document.querySelector('.menu-item[onclick*="' + url.replace(/'/g, "\\'") + '"]');
+			if (currentMenuItem) {
+				currentMenuItem.classList.add('selected');
+			}
+
+			document.getElementById("contentFrame").src = url;
+		}
+
+
+		function confirmLogout() {
+			return confirm('로그아웃 하시겠습니까?');
+		}
+
+		window.onload = function () {
+			// 초기에 홈 메뉴에 대한 스타일을 적용
+			var homeMenuItem = document.querySelector('[onclick="loadContent(\'/admin/home\')"]');
+			if (homeMenuItem) {
+				homeMenuItem.classList.add('selected');
+				loadContent('/admin/home');
+			}
+		};
+	</script>
+</body>
+
+</html>

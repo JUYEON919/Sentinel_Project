@@ -1,0 +1,234 @@
+ @charset "UTF-8";
+
+ /* 전체 폰트 글자사이즈 */
+ body {
+ 	padding: 30px;
+ }
+
+ /* 제목앞에 파란색 라인 */
+ .hline {
+ 	border-left: 5px solid #447294;
+ }
+
+ h1 {
+ 	margin-left: 10px;
+ }
+.topGroup{
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	margin-top: 10px;
+}
+.buttonbox1, .viewPolicyInfo {
+  display: flex;
+}
+.viewPolicyInfo {
+  margin-left: 10px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+ /* 추가 수정 버튼 */
+ .buttonbox1 {
+ 	margin-left: 20px;
+ }
+
+ .buttonbox1 button {
+ 	margin-right: 10px;
+ 	padding: 7px 18px;
+ 	cursor: pointer;
+ 	border: none;
+ 	border-radius: 5px;
+ 	font-weight: bold;
+ 	text-transform: uppercase;
+ }
+
+ .buttonbox {
+ 	margin-right: 20px;
+ }
+
+ .buttonbox button {
+ 	margin-right: 10px;
+ 	padding: 7px 18px;
+ 	cursor: pointer;
+ 	border: none;
+ 	border-radius: 5px;
+ 	font-weight: bold;
+ 	text-transform: uppercase;
+ }
+
+ .add-btn {
+ 	background-color: #3498db;
+ 	color: white;
+ }
+
+ .edit-btn {
+ 	background-color: #5e5e5e;
+ 	color: white;
+ }
+
+ .delete-btn {
+ 	background-color: #e0e0e0;
+ 	color: black;
+ }
+
+
+ /* 데이터 테이블 */
+ main {
+ 	display: flex;
+ 	justify-content: center;
+ 	padding: 10px;
+ 	margin-top: 5px;
+ 	width: 100%;
+ 	height: 80%;
+ 	float: left;
+ 	border-collapse: collapse;
+ 	border-bottom: 1px solid rgba(179, 179, 179, 0.4);
+ 	box-sizing: border-box;
+ }
+
+ .primary {
+ 	overflow-y: scroll;
+ 	overflow-x: scroll;
+ 	/* 보여지는 표 수 설정*/
+ 	width: 100%;
+ 	height: 100%;
+ }
+
+ table {
+ 	border-collapse: collapse;
+ 	border: 0;
+ 	table-layout: fixed;
+ 	width: 100%;
+ }
+
+ /* 테이블제목 */
+ thead {
+ 	z-index: 1000;
+ 	position: relative;
+ }
+
+ thead th {
+ 	position: sticky;
+ 	top: 0;
+ 	border-top: 0;
+ 	background-clip: padding-box;
+ 	background-color: #e0e0e0;
+ 	white-space: nowrap;
+ 	height: 35px;
+ 	color: #444;
+ 	font-size: 15px;
+ 	font-weight: 600;
+ }
+th {
+ 	border: 1px 0px solid #aaa;
+ 	background-clip: padding-box;
+ 	scroll-snap-align: start;
+ 	text-align: center;
+ 	margin: 0;
+ }
+
+ /* 테이블 본문 */
+ tbody th {
+ 	background-clip: padding-box;
+ 	border-left: 0;
+ 	white-space: nowrap;
+ }
+
+ tbody {
+ 	text-align: center;
+ 	left: auto;
+ 	width: 100%;
+ }
+
+tbody tr
+{
+    height: 35px;
+    margin: 0;
+    padding: 5px;
+}
+ tbody th {
+ 	border-bottom: 1px solid #e0e0e0;
+ 	left: 0;
+ 	z-index: 1002;
+ 	overflow: hidden;
+ 	text-overflow: ellipsis;
+ 	height: 35px;
+ }
+
+
+ tbody tr:last-child th,
+ tbody tr:last-child td {
+ 	border-bottom: 0;
+ }
+
+
+.clickName:hover{
+	color: #4aabed;
+}
+
+ /* 적용버튼 */
+ .switch-button {
+ 	position: relative;
+ 	display: inline-block;
+ 	width: 46px;
+ 	height: 24px;
+ }
+
+ .switch-button input {
+ 	opacity: 0;
+ 	width: 0;
+ 	height: 0;
+ }
+
+ .onoff-switch {
+ 	position: absolute;
+ 	cursor: pointer;
+ 	top: 0;
+ 	left: 0;
+ 	right: 0;
+ 	bottom: 0;
+ 	border-radius: 20px;
+ 	background-color: #ccc;
+ 	-webkit-transition: .4s;
+ 	transition: .4s;
+ }
+
+ .onoff-switch:before {
+ 	position: absolute;
+ 	content: "";
+ 	height: 15px;
+ 	width: 15px;
+ 	left: 4px;
+ 	bottom: 4px;
+ 	background-color: #fff;
+ 	-webkit-transition: .5s;
+ 	transition: .4s;
+ 	border-radius: 20px;
+ }
+
+ .switch-button input:checked+.onoff-switch {
+ 	background-color: #6ec0f8;
+ }
+
+ .switch-button input:checked+.onoff-switch:before {
+ 	-webkit-transform: translateX(24px);
+ 	-ms-transform: translateX(24px);
+ 	transform: translateX(24px);
+ }
+
+ /* 체크박스전체선택 */
+ .checkbox-label {
+ 	cursor: pointer;
+ 	text-decoration: underline;
+ 	color: blue;
+ }
+
+ .checkbox-label:hover {
+ 	text-decoration: none;
+ }
+
+ /* 체크,이름부분 마우스 I말고 커서로 바꿈 */
+ .click:hover {
+ 	cursor: pointer;
+ }
+

@@ -1,0 +1,92 @@
+@charset "UTF-8";
+
+body {
+	background-color: #4f81bd;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	margin: 0;
+}
+
+.login-screen {
+	position: relative;
+	width: 260px;
+	height: 230px;
+	background-color: white;
+	border-radius: 50px;
+	padding: 20px;
+	padding-top: 80px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.login-screen .logo {
+	position: absolute;
+	top: -90px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 180px;
+	height: 180px;
+	background-image: url('/Team_Logo.png');
+	background-size: cover;
+}
+
+.input-field {
+	display: flex;
+	justify-content: space-between;
+	width: 80%;
+	height: 35px;
+	margin-bottom: 20px;
+}
+
+.input-field label {
+	width: 40px;
+}
+
+.input-field input {
+	flex-grow: 1;
+	padding: 0 1em;
+	border: 2px solid #000000;
+	border-radius: 15px;
+}
+
+.login-button {
+	background-color: #4f81bd;
+	border: none;
+	border-radius: 15px;
+	color: white;
+	padding: 10px 25px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	margin: 4px 2px;
+	margin-top: 10px;
+	cursor: pointer;
+	width: 83%;
+}
+
+.forgot-password {
+	text-align: center;
+	width: 100%;
+	margin-top: 30px;
+}
+
+.login-message {
+	color: #4f81bd;
+	font-style: normal;
+	font-weight: bold;
+	text-align: center;
+	margin-top: -50px;
+}
+
+.error-message {
+	color: red;
+	font-style: normal;
+	font-weight: bold;
+	text-align: center;
+	margin-top: -50px;
+}

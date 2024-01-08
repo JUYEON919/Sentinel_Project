@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0 , minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<link rel="stylesheet" href="/css/commonStyle.css">
+	<link rel="stylesheet" href="/css/changePolicyStyle.css">
+	<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+	<link rel="manifest" href="/json/manifest.json">
+
+	<!-- jQuery 라이브러리 로드 -->
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+	<title>Sentinel</title>
+</head>
+
+<body>
+	<header>
+		<div class="hline">
+			<h2>정책 상세 정보</h2>
+		</div>
+	</header>
+	<form class="container" id="policyForm" onsubmit="changeScreen(/admin/menu/readPolicy/updatePolicy)">
+		<div class="left">
+
+			<div class="leftTop">
+				<div class="hline">
+					<h3>탐지 정책 기본 정보</h3>
+				</div>
+
+				<input type="hidden" id="detected_no" name="id" th:value="${viewPolicy.detected_no}">
+
+				<div class="section">
+					<span class="label">탐지명:</span>
+					<input type="text" id="detected_name" name="detected_name" th:value="${viewPolicy.detected_name}"
+						readonly style="background-color: #f2f2f2;">
+
+					<span class="label">유효기간:</span>
+					<input type="text" id="end_time" name="end_time" th:value="${viewPolicy.end_time}" readonly
+						style="background-color: #f2f2f2;">
+
+					<span class="label">위험등급:</span>
+					<select id="level" name="level" disabled style="background-color: #f2f2f2;">
+						<option value=0 th:selected="${viewPolicy.level == 0}">하</option>
+						<option value=1 th:selected="${viewPolicy.level == 1}">중</option>
+						<option value=2 th:selected="${viewPolicy.level == 2}">상</option>
+						<option value=3 th:selected="${viewPolicy.level == 3}">최상</option>
+					</select>
+				</div>
+			</div>
+			<div class="leftMiddle">
+				<div class="hline">
+					<h3>세션 정보</h3>
+				</div>
+				<div class="section" name="r_section">
+					<span class="label">출발지 IP [-IP 범위]:</span>
+					<input type="text" id="src_ip" name="src_ip"
+						th:value="${viewPolicy.src_ip == 'any' ? 'any' : (viewPolicy.to_sip == '0' ? viewPolicy.src_ip : viewPolicy.src_ip + '-' + viewPolicy.to_sip)}"
+						readonly style="background-color: #f2f2f2;">
+
+					<span class="label">출발지 Port [-Port 범위]:</span>
+					<input type="text" id="src_port" name="src_port"
+						th:value="${viewPolicy.src_port == 'any' ? 'any' : (viewPolicy.to_sp == '0' ? viewPolicy.src_port : viewPolicy.src_port + '-' + viewPolicy.to_sp)}"
+						readonly style="background-color: #f2f2f2;">
+
+					<span class="label">도착지 IP:</span>
+					<input type="text" id="dst_ip" name="dst_ip"
+						th:value="${viewPolicy.dst_ip == 'any' ? 'any' : viewPolicy.dst_ip}" readonly
+						style="background-color: #f2f2f2;">
+
+					<span class="label">도착지 Port:</span>
+					<input type="text" id="dst_port" name="dst_port"
+						th:value="${viewPolicy.dst_port == 'any' ? 'any' : viewPolicy.dst_port}" readonly
+						style="background-color: #f2f2f2;">
+				</div>
+			</div>
+			<div class="leftBottom">
+				<div class="hline">
+					<h3>정책 동작</h3>
+				</div>
+				<div class="section" name="r_section">
+					<span class="label">동작설정:</span>
+					<select id="action" name="action" disabled style="background-color: #f2f2f2;">
+						<option value=0 th:selected="${viewPolicy.action == 0}">로그</option>
+						<option value=1 th:selected="${viewPolicy.action == 1}">로그+차단</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+
+
+		<div class="right">
+			<div class="rightTop">
+				<div class="hline">
+					<h3>탐지 패턴</h3>
+				</div>
+
+				<div class="r_section">
+					<div class="b_top">
+						<div class="label1">기준횟수:
+							<input type="text" id="base_time" name="base_time" class="secT"
+								th:value="${viewPolicy.base_time}" readonly style="background-color: #f2f2f2;">
+							초 동안
+							<input type="text" id="base_limit" name="base_limit" class="numT"
+								th:value="${viewPolicy.base_limit}" readonly style="background-color: #f2f2f2;">
+							회 발생
+						</div>
+					</div>
+
+					<div class="label">
+						<h8>패턴정의<h8>
+								<div class="pattenbox">
+									<div class="cont_label">내 용:
+										<input class="de_gray" type="text" id="contentInput"
+											placeholder="content를 입력하세요." readonly style="background-color: #f2f2f2;">
+									</div>
+								</div>
+								<div class="contentT" id='result' style="background-color: #f2f2f2;">
+									<table style="background-color: #f2f2f2;">
+										<tr id="content1" th:if="${viewPolicy.content1 != null}">
+											<td><span name="label_content1">content1 : </span>
+												<textarea class="contentRead" name="content1"
+													th:text="${viewPolicy.content1}" readonly />
+											</td>
+										</tr>
+										<tr id="content2" th:if="${viewPolicy.content2 != null}">
+											<td><span name="label_content2">content2 : </span>
+												<textarea class="contentRead" name="content2"
+													th:text="${viewPolicy.content2}" readonly />
+											</td>
+										</tr>
+										<tr id="content3" th:if="${viewPolicy.content3 != null}">
+											<td><span name="label_content3">content3 : </span>
+												<textarea class="contentRead" name="content3"
+													th:text="${viewPolicy.content3}" readonly />
+											</td>
+										</tr>
+									</table>
+								</div>
+					</div>
+				</div>
+			</div>
+			<div class="rightBottom">
+				<div class="hline">
+					<h3>탐지 내용 설명</h3>
+				</div>
+				<div class="r_section">
+					<div class="detailbox">
+						<textarea id="detail" name="detail" th:text="${viewPolicy.detail}"
+							style="background-color: #f2f2f2; resize: none;" disabled></textarea>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="b_se">
+			<button class="button1" type="button" onclick="moveUpdatePolicy()">수정</button>
+			<button class="button2" type="button" onclick="cancel()">취소</button>
+		</div>
+	</form>
+
+	<script>
+		//ContentT testarea높이를 글자줄바꿈에 따라서 설정
+		$('.contentT textarea').each(function () {
+			this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+		}).on('input', function () {
+			this.style.height = 'auto';
+			this.style.height = (this.scrollHeight) + 'px';
+		});
+
+		document.addEventListener("DOMContentLoaded", function () {
+			var input = document.getElementById("end_time");
+			if (input.value == null || input.value == "") {
+				input.placeholder = "설정한 유효기간이 없습니다.";
+			}
+		});
+
+		document.addEventListener('DOMContentLoaded', (event) => {
+			document.getElementById('level').addEventListener('click', function (e) {
+				e.preventDefault();
+			}, false);
+
+			document.getElementById('action').addEventListener('click', function (e) {
+				e.preventDefault();
+			}, false);
+		});
+
+		function moveUpdatePolicy() {
+			const detected_no = document.getElementById('detected_no').value;
+			window.location.href = "/admin/menu/readPolicy/updatePolicy?id=" + detected_no;
+		}
+
+		function cancel() {
+			window.location.href = "/admin/menu/readPolicy";
+		}
+
+		function changeScreen(screenId) {
+			// 화면 교체
+			window.location.href = screenId;
+		}
+	</script>
+</body>
+
+</html>

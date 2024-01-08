@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/css/commonStyle.css">
+	<link rel="stylesheet" href="/css/homeStyle.css">
+	<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+	<link rel="manifest" href="/json/manifest.json">
+
+	<!-- jQuery 및 jQuery-UI 라이브러리 포함 -->
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+	<!-- datetimepicker 및 Chart.js 라이브러리 포함 -->
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+	<script>
+		if ($.datetimepicker) {
+			$.datetimepicker.setLocale('ko');
+		}
+
+		var today = new Date();
+
+		$(document).ready(function () {
+			var logNames = {};
+			var logCounts = {};
+
+			function formatLogTime(logTime) {
+				var date = new Date(logTime);
+				var formattedTime = date.toLocaleString('en-US', {
+					year: 'numeric',
+					month: '2-digit',
+					day: '2-digit',
+					hour: '2-digit',
+					minute: '2-digit',
+					second: '2-digit',
+					hour12: false // 24시간 형식
+				});
+
+				// 공백으로 구분된 날짜와 시간 형식으로 변환
+				var parts = formattedTime.split(', ');
+				var datePart = parts[0].split('/').reverse().join('-'); // Reformatting date
+				var timePart = parts[1];
+				return datePart.replace(/(\d+)-(\d+)-(\d+)/, '$1-$3-$2') + ' ' + timePart;
+			}
+
+			function fetchLogs(date) {
+				var dd = String(date.getDate()).padStart(2, '0');
+				var mm = String(date.getMonth() + 1).padStart(2, '0');
+				var yyyy = date.getFullYear();
+				var dateStr = yyyy + '-' + mm + '-' + dd;
+
+				$.ajax({
+					url: '/admin/menu/home/api/log',
+					type: 'GET',
+					data: {
+						date: dateStr
+					},
+					success: function (data) {
+						if (data.length === 0) {
+							date.setDate(date.getDate() - 1);
+							fetchLogs(date);
+						} else {
+							var tbody = $('#lTable');
+							var logNames = {};
+							var topTenLogs = data.slice(0, 10);
+							topTenLogs.forEach(function (log) {
+								var row = $('<tr>');
+								row.append($('<td>').text(formatLogTime(log.time)));
+								row.append($('<td>').text(log.detected_name));
+								var resultLevel = '';
+								switch (log.level) {
+									case -1:
+										resultLevel = '전체';
+										break;
+									case 0:
+										resultLevel = '하';
+										break;
+									case 1:
+										resultLevel = '중';
+										break;
+									case 2:
+										resultLevel = '상';
+										break;
+									case 3:
+										resultLevel = '최상';
+										break;
+								}
+								row.append($('<td>').text(resultLevel));
+								row.append($('<td>').text(log.src_ip));
+								row.append($('<td>').text(log.src_port));
+								row.append($('<td>').text(log.dst_ip));
+								var resultAction = '';
+								switch (log.action) {
+									case -1:
+										resultAction = '전체';
+										break;
+									case 0:
+										resultAction = '로그';
+										break;
+									case 1:
+										resultAction = '로그+차단';
+										break;
+								}
+								row.append($('<td>').text(resultAction));
+								tbody.append(row);
+
+								// 로그 이름별로 개수를 세어 logNames에 저장합니다.
+								if (logNames[log.detected_name]) {
+									logNames[log.detected_name]++;
+								} else {
+									logNames[log.detected_name] = 1;
+								}
+							});
+
+							data.forEach(function (log) {
+								if (logNames[log.detected_name]) {
+									logNames[log.detected_name]++;
+								} else {
+									logNames[log.detected_name] = 1;
+								}
+							});
+
+							// logNames를 이용해 차트 데이터를 생성합니다.
+							var labels = Object.keys(logNames);
+							var data = Object.values(logNames);
+
+							// 차트를 생성합니다.
+							var ctx = document.getElementById('logNameChart').getContext('2d');
+							var myChart = new Chart(ctx, {
+								type: 'doughnut',
+								data: {
+									labels: labels,
+									datasets: [{
+										data: data,
+										backgroundColor: [
+											'rgba(68, 114, 148, 1)',
+											'rgba(54, 162, 235, 1)',
+											'rgba(255, 206, 86, 1)',
+											'rgba(75, 192, 192, 1)',
+											'rgba(153, 102, 255, 1)',
+											'rgba(255, 159, 64, 1)',
+											'rgba(201, 203, 207, 0.9)',
+											'rgba(255, 99, 71, 0.9)',
+											'rgba(70, 130, 180, 0.9)',
+											'rgba(240, 128, 128, 0.9)',
+											'rgba(210, 180, 140, 0.9)',
+											'rgba(0, 128, 0, 0.9)',
+											'rgba(216, 191, 216, 0.9)',
+											'rgba(255, 20, 147, 0.9)',
+											'rgba(30, 144, 255, 0.9)',
+											'rgba(255, 215, 0, 0.9)',
+											'rgba(186, 85, 211, 0.9)',
+											'rgba(147, 112, 219, 0.9)',
+											'rgba(60, 179, 113, 0.9)',
+											'rgba(123, 104, 238, 0.9)'
+										],
+										borderColor: [
+											'rgba(68, 114, 148, 1)',
+											'rgba(54, 162, 235, 1)',
+											'rgba(255, 206, 86, 1)',
+											'rgba(75, 192, 192, 1)',
+											'rgba(153, 102, 255, 1)',
+											'rgba(255, 159, 64, 1)',
+											'rgba(201, 203, 207, 0.9)',
+											'rgba(255, 99, 71, 0.9)',
+											'rgba(70, 130, 180, 0.9)',
+											'rgba(240, 128, 128, 0.9)',
+											'rgba(210, 180, 140, 0.9)',
+											'rgba(0, 128, 0, 0.9)',
+											'rgba(216, 191, 216, 0.9)',
+											'rgba(255, 20, 147, 0.9)',
+											'rgba(30, 144, 255, 0.9)',
+											'rgba(255, 215, 0, 0.9)',
+											'rgba(186, 85, 211, 0.9)',
+											'rgba(147, 112, 219, 0.9)',
+											'rgba(60, 179, 113, 0.9)',
+											'rgba(123, 104, 238, 0.9)'
+										],
+										borderWidth: 0
+									}]
+								},
+								options: {
+									responsive: true,
+									maintainAspectRatio: false,
+									layout: {
+										padding: {
+											left: 0,
+											right: 0,
+											top: 0,
+											bottom: 0 // 범례와 그래프 사이의 아래쪽 공간을 없앰
+										}
+									},
+									legend: {
+										position: 'left',
+										align: 'start',
+										itemMarginTop: '-10px',
+									}
+								}
+							});
+						}
+					},
+					error: function (request, status, error) {
+						console.log("code:" + request.status + "" + "message:" + request.responseText + "" + "error:" + error);
+					}
+				});
+			}
+
+			fetchLogs(today);
+
+			// 라인 차트 (7일)
+			var oneWeekAgo = new Date();
+			oneWeekAgo.setDate(today.getDate() - 7);
+			var week_dd = String(oneWeekAgo.getDate()).padStart(2, '0');
+			var week_mm = String(oneWeekAgo.getMonth() + 1).padStart(2, '0');
+			var week_yyyy = oneWeekAgo.getFullYear();
+			var oneWeekAgoStr = week_yyyy + '-' + week_mm + '-' + week_dd;
+
+			var dd = String(today.getDate()).padStart(2, '0');
+			var mm = String(today.getMonth() + 1).padStart(2, '0');
+			var yyyy = today.getFullYear();
+			var todayStr = yyyy + '-' + mm + '-' + dd;
+
+			for (var d = oneWeekAgo; d <= today; d.setDate(d.getDate() + 1)) {
+				var date = d.toISOString().split('T')[0];
+				logCounts[date] = 0;
+			}
+
+			$.ajax({
+				url: '/admin/menu/home/api/logWeek',
+				type: 'GET',
+				data: {
+					startDate: oneWeekAgoStr,
+					endDate: todayStr
+				},
+				success: function (data) {
+					data.forEach(function (log) {
+						var date = log.time.split('T')[0];
+						if (logCounts[date]) {
+							logCounts[date]++;
+						} else {
+							logCounts[date] = 1;
+						}
+					});
+
+					var labels = Object.keys(logCounts).sort();
+					var data = labels.map(function (date) {return logCounts[date];});
+
+					var ctx = document.getElementById('logCountChart').getContext('2d');
+					var myChart = new Chart(ctx, {
+						type: 'line',
+						data: {
+							labels: labels,
+							datasets: [{
+								label: '요일별 로그 개수',
+								data: data,
+								borderColor: 'rgba(68, 114, 148, 1)',
+								borderWidth: 2,
+								fill: false,
+								tension: 0
+							}]
+						},
+						options: {
+							responsive: true,
+							maintainAspectRatio: false,
+							title: {
+								display: true, // 제목을 표시하도록 설정합니다.
+								text: '로그 카운트', // 제목 텍스트를 설정합니다.
+								position: 'left' // 제목 위치를 오른쪽으로 설정합니다.
+							}
+						}
+					});
+				},
+				error: function (request, status, error) {
+					console.log("code:" + request.status + "" + "message:" + request.responseText + "" + "error:" + error);
+				}
+			});
+		});
+	</script>
+</head>
+
+<body>
+	<div class="lineChart" style="height: 50%;">
+		<canvas id="logCountChart" style="width: 100%; height: 100%;"></canvas>
+	</div>
+	<div class="bottomChart">
+		<div class="doughnutChart" style="width: 35%; ">
+			<canvas id="logNameChart" style="width: 100%; height: 100%;"></canvas>
+		</div>
+		<div class="logListBox" id="logBox" style="width: 65%;">
+			<table style="width: 100%;">
+				<thead>
+					<tr>
+						<th>시간</th>
+						<th>내용</th>
+						<th>위험등급</th>
+						<th>출발지 IP</th>
+						<th>출발지 Port</th>
+						<th>도착지 IP</th>
+						<th>동작</th>
+					</tr>
+				</thead>
+				<tbody id="lTable">
+					<!-- 여기에 로그가 동적으로 추가됨 -->
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "C:/Users/chlru/Desktop/Study/Java/Library/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.policy.InsertPolicyMapper">
+	<insert id="insertPolicy">
+		INSERT INTO ips_policy(
+		detected_name,
+		action,
+		src_ip,
+		src_port,
+		content1,
+		content2,
+		content3,
+		base_time,
+		base_limit,
+		level,
+		end_time,
+		detail,
+		to_sip,
+		to_sp,
+		dst_ip,
+		base_size,
+		dst_port
+		)
+		VALUES(
+		#{detected_name},
+		#{action},
+		#{src_ip},
+		#{src_port},
+		#{content1},
+		#{content2},
+		#{content3},
+		#{base_time},
+		#{base_limit},
+		#{level},
+		#{end_time},
+		#{detail},
+		#{to_sip},
+		#{to_sp},
+		#{dst_ip},
+		0,
+		#{dst_port}
+		)
+	</insert>
+</mapper>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/css/commonStyle.css">
+	<link rel="stylesheet" href="/css/readPolicyStyle.css">
+	<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+	<link rel="manifest" href="/json/manifest.json">
+
+	<title>Sentinel</title>
+</head>
+
+<body>
+	<header>
+		<div class="hline">
+			<h1>정책현황</h1>
+		</div>
+	</header>
+	<div class="topGroup">
+		<div class="buttonbox1">
+			<button class="add-btn" id="activate-button">활성화</button>
+			<button class="edit-btn" id="deactivate-button">비활성화</button>
+			<div class="viewPolicyInfo">
+				<p>※각 정책의 이름을 클릭시 상세보기로 이동</p>
+			</div>
+		</div>
+
+		<div class="buttonbox">
+			<button class="add-btn" onclick="location.href='/admin/menu/readPolicy/insertPolicy'">추가</button>
+			<button class="edit-btn" onclick="updatePolicy()">수정</button>
+			<button class="delete-btn" onclick="deletePolicy()">삭제</button>
+		</div>
+	</div>
+
+	<main class="box2">
+		<div role="region" aria-label="data table" tabindex="0" class="primary">
+			<table>
+				<thead>
+					<tr>
+						<th style="width: 35px;"><input class="click" onclick="toggleAllCheckboxes()" type="checkbox">
+						</th>
+						<th style="width: 75px;">No</th>
+						<th style="width: 130px;">이름</th>
+						<th style="width: 60px;">적용</th>
+						<th style="width: 65px;">위험등급</th>
+						<th style="width: 230px;">출발지IP</th>
+						<th style="width: 100px;">출발지Port</th>
+						<th style="width: 230px;">도착지IP</th>
+						<th style="width: 100px;">도착지Port</th>
+						<th style="width: 60px;">기준 초</th>
+						<th style="width: 60px;">쿼리 수</th>
+						<th style="width: 60px;">사이즈</th>
+						<th style="width: 160px;">탐지 문구 1</th>
+						<th style="width: 160px;">탐지 문구 2</th>
+						<th style="width: 160px;">탐지 문구 3</th>
+						<th style="width: 80px;">동작</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="policy : ${readPolicies}" >
+						<th >
+							<input type="checkbox" class="selectedPolicy" name="selectedPolicy"
+								th:value="${policy.detected_no}" style="display:inline;">
+						</th>
+
+						<th><span th:text="${policy.detected_no}" class="detected_no"></span></th>
+
+						<th class="click" onclick="view()" title="상세보기">
+							<span th:text="${policy.detected_name}" class="clickName"></span>
+						</th>
+
+						<th>
+							<label class="switch-button">
+								<input type="checkbox" th:checked="${policy.enable == 1}" class="individual-switch">
+								<span class="onoff-switch"></span>
+							</label>
+						</th>
+
+						<th><span th:text="${policy.level}" class="level"></span></th>
+
+						<th><span
+								th:text="${policy.src_ip == 'any' ? 'any' : (policy.to_sip == '0' ? policy.src_ip : policy.src_ip + '-' + policy.to_sip)}"></span>
+						</th>
+						<th><span
+								th:text="${policy.src_port == 'any' ? 'any' : (policy.to_sp == '0' ? policy.src_port : policy.src_port + '-' + policy.to_sp)}"></span>
+						</th>
+						
+						<th><span
+								th:text="${policy.dst_ip == 'any' ? 'any' : policy.dst_ip}"></span>
+						</th>
+						<th><span
+								th:text="${policy.dst_port == 'any' ? 'any' : policy.dst_port}"></span>
+						</th>
+						
+						<th><span th:text="${policy.base_time}"></span></th>
+
+						<th><span th:text="${policy.base_limit}"></span></th>
+						
+						<th><span th:text="${policy.base_size}"></span></th>
+
+						<th style="width: 100px;"><span th:text="${policy.content1}"></span></th>
+						<th><span th:text="${policy.content2}"></span></th>
+						<th><span th:text="${policy.content3}"></span></th>
+
+						<th><span th:text="${policy.action}" class="action"></span></th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</main>
+
+	<script>
+		window.onload = function () {
+			var levelElements = document.getElementsByClassName('level');
+			var actionElements = document.getElementsByClassName('action');
+			for (var i = 0; i < levelElements.length; i++) {
+				var levelValue = levelElements[i].innerText;
+				var actionValue = actionElements[i].innerText;
+				var levelText = '';
+				var actionText = '';
+
+				// level value에 따른 문자열 변환
+				switch (levelValue) {
+					case '0':
+						levelText = '하';
+						break;
+					case '1':
+						levelText = '중';
+						break;
+					case '2':
+						levelText = '상';
+						break;
+					case '3':
+						levelText = '최상';
+						break;
+				}
+
+				// action value에 따른 문자열 변환
+				switch (actionValue) {
+					case '0':
+						actionText = '로그';
+						break;
+					case '1':
+						actionText = '로그+차단';
+						break;
+				}
+
+				levelElements[i].innerText = levelText;
+				actionElements[i].innerText = actionText;
+			}
+		}
+
+		function updatePolicy() {
+			const selectedChecks = document.querySelectorAll('input[name="selectedPolicy"]:checked');
+
+			if (selectedChecks.length > 1) {
+				alert("수정은 한 개씩만 가능합니다.");
+			} else if (selectedChecks.length === 1) {
+				const detected_no = selectedChecks[0].value;
+				window.location.href = "/admin/menu/readPolicy/updatePolicy?id=" + detected_no;
+			} else {
+				alert("선택된 항목이 없습니다.\n수정할 정책을 선택하세요.");
+			}
+		}
+
+		function deletePolicy() {
+			const selectedChecks = document.querySelectorAll('input[name="selectedPolicy"]:checked');
+
+			if (selectedChecks.length > 0) {
+				const isConfirmed = confirm("선택된 정책을 모두 삭제하시겠습니까?");
+				if (isConfirmed) {
+					// 선택된 모든 체크박스의 값을 배열로 변환
+					const detected_nos = Array.from(selectedChecks).map(check => parseInt(check.value));
+
+					// 서버에 JSON 형태로 삭제할 ID 목록을 전송
+					fetch('/admin/menu/readPolicy/deletePolicies', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ids: detected_nos})
+					})
+						.then(response => {
+							if (!response.ok) {
+								throw new Error('네트워크 응답 없음.');
+							}
+							return response.json();
+						})
+						.then(data => {
+							if (data.success) {
+								alert(`${detected_nos.length}개의 정책이 삭제되었습니다.`);
+								window.location.href = "/admin/menu/readPolicy";
+							}
+						})
+						.catch(error => {
+							console.error('fetch 작업 중 문제가 발생했습니다:', error);
+						});
+				}
+			} else {
+				alert("선택된 항목이 없습니다.\n삭제할 정책을 선택하세요.");
+			}
+		}
+
+		function toggleAllCheckboxes() {
+			const enableSwitches = document.querySelectorAll('.selectedPolicy');
+			const isAllChecked = enableSwitches[0].checked;
+
+			enableSwitches.forEach((switchInput) => {
+				switchInput.checked = !isAllChecked;
+			});
+			const headerCheckbox = document.querySelector('thead .click');
+			headerCheckbox.checked = !isAllChecked;
+		}
+
+		document.querySelectorAll('.individual-switch').forEach((switchInput) => {
+			switchInput.addEventListener('click', (e) => {
+				e.preventDefault();
+				alert('정책의 활성화 여부를 설정 하려면\n수정 할 정책을 체크한 후 "활성화" 또는 "비활성화" 버튼을 사용해주세요.');
+			});
+		});
+
+		document.querySelector('#activate-button').addEventListener('click', function () {
+			updateSelectedPolicies(1);
+		});
+
+		document.querySelector('#deactivate-button').addEventListener('click', function () {
+			updateSelectedPolicies(0);
+		});
+
+		function updateSelectedPolicies(enableValue) {
+			const selectedSwitches = document.querySelectorAll('.selectedPolicy:checked');
+
+			if (selectedSwitches.length === 0) {
+				alert('선택된 항목이 없습니다.\n활성화 또는 비활성화할 항목을 선택하세요.');
+				return;
+			}
+
+			const confirmationMessage = `선택한 항목들을 ${enableValue ? '활성화' : '비활성화'}하시겠습니까?`;
+			if (confirm(confirmationMessage)) {
+				const policies = Array.from(selectedSwitches).map((switchInput) => {
+					const detected_no = switchInput.closest('tr').querySelector('.detected_no').textContent;
+					const enable = enableValue;
+					return {detected_no, enable};
+				});
+
+				fetch(`/admin/menu/readPolicy/updatePolicyEnable`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(policies),
+				})
+					.then(() => {
+						selectedSwitches.forEach((switchInput) => {
+							const switchButton = switchInput.closest('tr').querySelector('.individual-switch');
+							switchButton.checked = !!enableValue;
+							switchInput.checked = false;
+
+							// 추가된 부분: 비활성화 후 체크박스가 자동으로 풀리도록 함
+							const headerCheckbox = document.querySelector('thead .click');
+							headerCheckbox.checked = false;
+						});
+
+						alert(`${selectedSwitches.length}개의 항목이 성공적으로 ${enableValue ? '활성화' : '비활성화'}되었습니다.`);
+					})
+					.catch(error => {
+						console.error('fetch 작업 중 문제가 발생했습니다:', error);
+					});
+			}
+		}
+
+		function view() {
+			// 각 정책에 대한 상세보기 페이지로 이동
+			const target = event.target.closest('tr').querySelector('th input').value;
+			window.location.href = "/admin/menu/readPolicy/viewPolicy?id=" + target;
+		}
+	</script>
+</body>
+
+</html>

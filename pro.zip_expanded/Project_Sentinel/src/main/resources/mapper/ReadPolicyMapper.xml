@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "C:/Users/chlru/Desktop/Study/Java/Library/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.policy.ReadPolicyMapper">
+	<select id="findAll"
+		resultType="com.example.demo.model.policy.ReadPolicyEntity">
+		SELECT * FROM ips_policy
+	</select>
+
+	<select id="findByDetectedName"
+		resultType="com.example.demo.model.policy.ReadPolicyEntity">
+		SELECT * FROM ips_policy WHERE detected_name =
+		#{detected_name}
+	</select>
+
+	<update id="updatePolicyEnable">
+		UPDATE ips_policy SET enable = #{enable} WHERE
+		detected_no = #{detected_no}
+	</update>
+
+	<select id="getPolicyEnableStatusById" parameterType="int"
+		resultType="int">
+		SELECT enable
+		FROM ips_policy
+		WHERE detected_no = #{detected_no}
+	</select>
+</mapper>

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/css/commonStyle.css">
+	<link rel="stylesheet" href="/css/changePolicyStyle.css">
+	<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+	<link rel="manifest" href="/json/manifest.json">
+
+	<!-- jQuery 및 jQuery-UI 라이브러리 포함 -->
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+	<!-- datepicker 및 timepicker 포함 -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/i18n/datepicker-ko.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/i18n/jquery-ui-timepicker-ko.js"></script>
+
+	<title>Sentinel</title>
+</head>
+
+<body>
+	<header>
+		<div class="hline">
+			<h2>기존 정책 수정</h2>
+		</div>
+	</header>
+
+	<form class="container" id="policyForm" action="/admin/menu/readPolicy/updatePolicy" method="post"
+		onsubmit="return validateForm()">
+		<div class="left">
+			<div class="h35">
+				<div class="hline">
+					<h3>탐지 정책 기본 정보 수정</h3>
+				</div>
+
+				<input type="hidden" id="detected_no" name="id" th:value="${policyDetails.detected_no}">
+
+				<div class="section">
+					<span class="label">탐지명:</span>
+					<input type="text" id="detected_name" name="detected_name" th:value="${policyDetails.detected_name}"
+						style="border: 1px solid #ff0000;" oninput="blockKoreanInput()">
+
+					<span class="label">유효기간:</span>
+					<input class="datepicker" type="text" id="end_time" name="end_time"
+						th:value="${policyDetails.end_time}">
+
+					<span class="label">위험등급:</span>
+					<select id="level" name="level">
+						<option value=0 th:selected="${policyDetails.level == 0}">하</option>
+						<option value=1 th:selected="${policyDetails.level == 1}">중</option>
+						<option value=2 th:selected="${policyDetails.level == 2}">상</option>
+						<option value=3 th:selected="${policyDetails.level == 3}">최상</option>
+					</select>
+				</div>
+			</div>
+			<div class="h30">
+				<div class="hline">
+					<h3>세션 정보</h3>
+				</div>
+				<div class="section">
+					<span class="label">출발지 IP [-IP 범위]:</span>
+					<input type="text" id="src_ip" name="src_ip"
+						th:value="${policyDetails.src_ip == 'any' ? 'any' : (policyDetails.to_sip == '0' ? policyDetails.src_ip : policyDetails.src_ip + '-' + policyDetails.to_sip)}"
+						style="border: 1px solid #ff0000;">
+
+					<span class="label">출발지 Port [-Port 범위]:</span>
+					<input type="text" id="src_port" name="src_port"
+						th:value="${policyDetails.src_port == 'any' ? 'any' : (policyDetails.to_sp == '0' ? policyDetails.src_port : policyDetails.src_port + '-' + policyDetails.to_sp)}"
+						style="border: 1px solid #ff0000;">
+
+					<span class="label">도착지 IP:</span>
+					<input type="text" id="dst_ip" name="dst_ip"
+						th:value="${policyDetails.dst_ip == 'any' ? 'any' : policyDetails.dst_ip}">
+
+					<span class="label">도착지 Port:</span>
+					<input type="text" id="dst_port" name="dst_port"
+						th:value="${policyDetails.dst_port == 'any' ? 'any' : policyDetails.dst_port}">
+				</div>
+			</div>
+			<div class="h25">
+				<div class="hline">
+					<h3>정책 동작</h3>
+				</div>
+				<div class="section">
+					<span class="label">동작설정:</span>
+					<select id="action" name="action">
+						<option value=0 th:selected="${policyDetails.action == 0}">로그</option>
+						<option value=1 th:selected="${policyDetails.action == 1}">로그+차단</option>
+					</select>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="right">
+			<div class="h50">
+				<div class="hline">
+					<h3>탐지 패턴</h3>
+				</div>
+				<div class="r_section">
+					<div class="b_top">
+						<div class="label1">기준횟수:
+							<input type="text" id="base_time" name="base_time" class="secT"
+								th:value="${policyDetails.base_time}">
+							초 동안
+							<input type="text" id="base_limit" name="base_limit" class="numT"
+								th:value="${policyDetails.base_limit}">
+							회 발생
+						</div>
+					</div>
+
+					<div class="label">
+						<h8>패턴정의<h8>
+								<div class="pattenbox">
+									<div class="cont_label">내 용:
+										<input class="de_gray" type="text" id="contentInput"
+											placeholder="content를 입력하세요.">
+										<div>
+											<button type="button" class="addB"
+												onclick="addContent(); updateDeleteButton()">추가</button>
+										</div>
+									</div>
+								</div>
+								<div class="contentT" id='result'>
+									<table>
+										<tr id="content1" th:if="${policyDetails.content1 != null}">
+											<td><span name="label_content1">content1 </span>
+												<textarea name="content1" th:text="${policyDetails.content1}"
+													readonly /><button type="button"
+													onclick="deleteRow(this.parentNode.parentNode)">삭제</button>
+											</td>
+										</tr>
+										<tr id="content2" th:if="${policyDetails.content2 != null}">
+											<td><span name="label_content2">content2 </span>
+												<textarea name="content2" th:text="${policyDetails.content2}"
+													readonly /><button type="button"
+													onclick="deleteRow(this.parentNode.parentNode)">삭제</button>
+											</td>
+										</tr>
+										<tr id="content3" th:if="${policyDetails.content3 != null}">
+											<td><span name="label_content3">content3 </span>
+												<textarea name="content3" th:text="${policyDetails.content3}"
+													readonly /><button type="button"
+													onclick="deleteRow(this.parentNode.parentNode)">삭제</button>
+											</td>
+										</tr>
+									</table>
+								</div>
+					</div>
+				</div>
+			</div>
+			<div class="h40">
+				<div class="hline">
+					<h3>탐지 내용 설명</h3>
+				</div>
+				<div class="r_section">
+					<div class="detailbox">
+						<textarea id="detail" name="detail" th:text="${policyDetails.detail}"
+							style="resize: none;"></textarea>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="b_se">
+			<button class="button1" type="submit">완료</button>
+			<button class="button2" type="button" onclick="cancel()">취소</button>
+		</div>
+
+	</form>
+
+	<script>
+		$.datepicker.setDefaults({
+			showButtonPanel: true,
+			controlType: 'select',
+			closeText: "적용",
+			currentText: "오늘",
+			prevText: '이전 달',
+			nextText: '다음 달',
+			monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+			monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+			dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+			dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+			dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+			weekHeader: "주",
+			yearSuffix: '년'
+		});
+		function isValidDate(dateString) {
+			var regEx = /^\d{4}-\d{2}-\d{2}$/;
+			if (!dateString.match(regEx)) return 'invalid';  // Invalid format
+			var d = new Date(dateString);
+			var dNum = d.getTime();
+			if (!dNum && dNum !== 0) return 'invalid'; // NaN value, Invalid date
+			return d.toISOString().slice(0, 10) === dateString ? 'valid' : 'invalid';
+		}
+
+		$(function () {
+			var existingDate = $("#end_time").val();
+			if (existingDate) { // 기존에 설정된 값이 있을 경우
+				existingDate = new Date(existingDate);
+			} else { // 기존에 설정된 값이 없을 경우
+				$("#end_time").attr("placeholder", "설정한 유효기간이 없습니다.");
+			}
+
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+
+			$("#end_time").datepicker({
+				dateFormat: "yy-mm-dd",
+				minDate: 0, // 오늘 포함 이후만 선택 가능
+				onClose: function (selectedDate) {
+					let selected = new Date(selectedDate);
+					if (selected < today) {
+						alert("오늘보다 이전인 날은 선택할 수 없습니다.");
+						$("#end_time").datepicker("setDate", today); // 오늘 날짜로 설정
+					}
+				}
+			}).on('change', function () {
+				let inputValue = $(this).val();
+				if (/^\d{4}\d{2}\d{2}$/.test(inputValue)) {
+					inputValue = inputValue.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+					$(this).val(inputValue);
+				}
+				if (/^\d{4}\s\d{2}\s\d{2}$/.test(inputValue)) {
+					inputValue = inputValue.replace(/(\d{4})\s(\d{2})\s(\d{2})/, '$1-$2-$3');
+					$(this).val(inputValue);
+				}
+				const dateCheck = isValidDate(inputValue);
+				if (dateCheck === "invalid") {
+					alert("유효하지 않은 날짜 형식입니다.");
+					$(this).val("");
+					if (existingDate) {
+						$("#end_time").datepicker("setDate", existingDate); // 기존에 설정된 값으로 설정
+					} else {
+						$("#end_time").datepicker("setDate", today); // 오늘 날짜로 설정
+					}
+				}
+				else if (dateCheck === "past") {
+					alert("오늘보다 이전인 날은 선택할 수 없습니다.");
+					$(this).val("");
+					if (existingDate) {
+						$("#end_time").datepicker("setDate", existingDate); // 기존에 설정된 값으로 설정
+					} else {
+						$("#end_time").datepicker("setDate", today); // 오늘 날짜로 설정
+					}
+				}
+			});
+
+			if (existingDate) { // 기존에 설정된 값이 있을 경우
+				$("#end_time").datepicker("setDate", existingDate); // 해당 날짜를 기본값으로 설정
+			}
+		});
+
+		$(document).ready(function () {
+			$("#src_ip, #src_port").on('change', function () {
+				let inputValue = $(this).val();
+				// 앞뒤 공백 제거
+				inputValue = inputValue.trim();
+				// 가운데 공백 제거
+				inputValue = inputValue.replace(/\s+/g, '');
+				$(this).val(inputValue);
+			});
+		});
+		function isValidIp(ip) {
+			var pattern = new RegExp(/^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$/);
+			return pattern.test(ip) || ip === "0" || ip.toLowerCase() === "any";
+		}
+
+		function isValidPort(port) {
+			var pattern = new RegExp(/^[0-9]{1,5}$/);
+			return pattern.test(port) && (0 <= port && port <= 65535) || port.toLowerCase() === "any";
+		}
+
+		function isPositiveNumber(num) {
+			return Number(num) >= 0;
+		}
+		function blockKoreanInput() {
+			var detectedName = document.getElementById("detected_name");
+			var regExp = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+
+			if (regExp.test(detectedName.value)) {
+				alert("한글은 입력하실 수 없습니다. 다시 입력해주세요.");
+				detectedName.value = detectedName.value.replace(regExp, '');
+			}
+		}
+
+		function validateForm() {
+			var detectedName = document.getElementById("detected_name").value;
+			var srcIP = document.getElementById("src_ip").value;
+			var to_sip = 0;
+			var srcPort = document.getElementById("src_port").value;
+			var to_sp = 0;
+			var dstIP = document.getElementById("dst_ip").value;
+			var dstPort = document.getElementById("dst_port").value;
+			var baseTime = document.getElementById("base_time").value;
+			var baseLimit = document.getElementById("base_limit").value;
+			var endTime = document.getElementById("end_time").value;
+			var detail = document.getElementById("detail").value;
+
+			if (detectedName.trim() === "") {
+				alert("탐지명은 필수 입력 항목입니다.");
+				return false;
+			}
+			if (endTime.trim() === "") {
+				alert("유효기간을 입력해 주세요.");
+				return false;
+			}
+			if (srcIP.includes('-')) {
+				var ipParts = srcIP.split('-');
+				if (ipParts.length !== 2 || !isValidIp(ipParts[0]) || !isValidIp(ipParts[1])) {
+					alert("입력하신 범위기반 IP가 유효한 IP 주소 형식이 아닙니다.");
+					return false;
+				}
+				var octets1 = ipParts[0].split(".");
+				var octets2 = ipParts[1].split(".");
+				for (var i = 0; i < 3; i++) {
+					if (octets1[i] !== octets2[i]) {
+						alert("IP 주소의 세번째 옥텟까지는 동일해야 합니다.");
+						return false;
+					}
+				}
+				if (parseInt(ipParts[1].replace(/\./g, "")) < parseInt(ipParts[0].replace(/\./g, ""))) {
+					alert("뒤쪽의 IP 주소는 앞의 IP 주소보다 커야 합니다.");
+					return false;
+				}
+				else if (ipParts[0] === ipParts[1]) {
+					src_ip = ipParts[0];
+					to_sip = 0;
+				}
+				else {
+					srcIP = ipParts[0];
+					to_sip = ipParts[1];
+				}
+			}
+			else if (srcIP.toLowerCase() === 'any') {
+				srcIP = 'any';
+			}
+			else if (!isValidIp(srcIP)) {
+				alert("입력하신 출발지 IP가 유효한 IP 주소 형식이 아닙니다.");
+				return false;
+			}
+			if (srcPort.includes('-')) {
+				var portParts = srcPort.split('-');
+				if (portParts.length !== 2 || !isValidPort(portParts[0]) || !isValidPort(portParts[1])) {
+					alert("입력하신 범위기반 Port가 유효한 Port 번호 형식이 아닙니다.");
+					return false;
+				}
+				if (parseInt(portParts[1]) < parseInt(portParts[0])) {
+					alert("뒤쪽의 Port 번호는 앞의 Port 번호보다 커야 합니다.");
+					return false;
+				}
+				else if (portParts[0] === portParts[1]) {
+					srcPort = portParts[0];
+					to_sp = 0;
+				}
+				else {
+					srcPort = portParts[0];
+					to_sp = portParts[1];
+				}
+			}
+			else if (srcPort.toLowerCase() === 'any') {
+				srcPort = 'any';
+				to_sport = 0;
+			}
+			else if (!isValidPort(srcPort)) {
+				alert("입력하신 출발지 Port가 유효한 Port 번호 형식이 아닙니다.");
+				return false;
+			}
+			if (!isValidIp(dstIP)) {
+				alert("입력하신 도착지 IP가 유효한 IP 주소 형식이 아닙니다.");
+				return false;
+			}
+			if (!isValidPort(dstPort)) {
+				alert("입력하신 도착지 Port가 유효한 Port 번호 형식이 아닙니다.");
+				return false;
+			}
+			if (!isPositiveNumber(baseTime)) {
+				alert("행동 탐지 기준 초는 양수만 입력 가능합니다. ");
+				return false;
+			}
+			if (parseFloat(baseTime) > 3600) {
+				alert("행동 탐지 기준 초 입력은 3,600 이하여야 합니다.");
+				return false;
+			}
+			if (!isPositiveNumber(baseLimit)) {
+				alert("행동 탐지 기준 쿼리 개수는 양수만 입력 가능합니다.");
+				return false;
+			}
+			if (parseFloat(baseLimit) > 2147483647) {
+				alert("행동 탐지 기준 쿼리 개수 입력은 2,147,483,647 이하여야 합니다.");
+				return false;
+			}
+			if (contentInput.value.trim() !== "") {
+				confirm("입력한 내용이 추가되지 않았습니다. 그래도 적용하시겠습니까?", function () {
+					document.forms["policyForm"].submit(); // 폼 제출 예시
+				}, function () {
+					alert("취소되었습니다."); // 예시로 경고창 표시
+				});
+				return false; // 확인 모달에서 확인 버튼을 누르면 진행되지 않도록 반환값을 false로 설정
+			}
+			if (detectedName.trim().length > 50) {
+				alert("탐지명은 50자 이하여야 합니다.");
+				return false;
+			}
+			if (detail.trim().length > 200) {
+				alert("탐지명은 200자 이하여야 합니다.");
+				return false;
+			}
+
+			var originalDetectedName = document.getElementById("detected_name").defaultValue;
+
+			if (detectedName !== originalDetectedName) {
+				fetch('/admin/menu/readPolicy/checkDuplication?detected_name=' + encodeURIComponent(detectedName))
+					.then(response => response.text())
+					.then(function (result) {
+						if (result === 'EXIST') {
+							alert('동일한 탐지명이 이미 존재합니다.');
+						} else if (result === 'NOT_EXIST') {
+							alert('정책 수정 작업이 완료되었습니다.');
+							document.getElementById('policyForm').submit();
+						} else {
+							alert('예상치 못한 서버 응답입니다.');
+						}
+					});
+			} else {
+				alert('정책 수정 작업이 완료되었습니다.');
+				document.getElementById('policyForm').submit();
+			}
+
+			return false;
+		}
+
+		function addContent() {
+			var contentInput = document.getElementById("contentInput");
+			var content = contentInput.value.toLowerCase();
+
+			// 아무것도 입력하고 버튼누르면 입력하라는창
+			if (content.trim() === "") {
+				alert("정책을 입력하세요.");
+				return;
+			}
+			// 입력 내용이 200자를 초과하면 경고 메시지를 표시합니다.
+			if (content.trim().length > 200) {
+				alert("내용은 최대 200자까지 입력 가능합니다.");
+				return;
+			}
+
+			var contentT = document.getElementById("result");
+			var table = contentT.querySelector("table");
+
+			// 이미 있는 값인지 확인
+			var existingContent = Array.from(table.querySelectorAll("td textarea")).find(function (item) {
+				return item.value.toLowerCase() === content;
+			});
+
+			if (table.rows.length < 3) {
+				if (existingContent) {
+					alert("동일한 내용이 이미 존재합니다.");
+				} else {
+					var newRow = table.insertRow(-1);
+					var cell = newRow.insertCell(0);
+
+					// 레이블 추가
+					var label = document.createElement("span");
+					label.innerText = "content" + (table.rows.length) + " ";
+					cell.appendChild(label);
+
+					// 값 추가
+					var textarea = document.createElement("textarea");
+
+					textarea.name = "content" + (table.rows.length);
+					textarea.value = content;
+					cell.appendChild(textarea);
+
+					// 삭제 버튼 추가
+					var deleteButton = document.createElement("button");
+					deleteButton.innerText = "삭제";
+					deleteButton.addEventListener("click", function () {
+						deleteRow(newRow);
+					});
+					cell.appendChild(deleteButton);
+
+					contentInput.value = ""; // 입력 창 초기화
+
+					// 새로 생성된 textarea에 대해 높이를 동적으로 조절하는 코드 적용
+					$(textarea).each(function () {
+						this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+					}).on('input', function () {
+						this.style.height = 'auto';
+						this.style.height = (this.scrollHeight) + 'px';
+					});
+				}
+			} else {
+				alert("내용은 최대 3개까지 추가 가능합니다.");
+			}
+		}
+		$('.contentT textarea').each(function () {
+			this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+		}).on('input', function () {
+			this.style.height = 'auto';
+			this.style.height = (this.scrollHeight) + 'px';
+		});
+		document.addEventListener("DOMContentLoaded", function () {
+			var input = document.getElementById("end_time");
+			if (input.value == null || input.value == "") {
+				input.placeholder = "설정한 유효기간이 없습니다.";
+			}
+		});
+
+		function deleteRow(row) {
+			var form = document.getElementById("policyForm");
+			var rowIndex = row.rowIndex;
+			var contentT = document.getElementById("result");
+			var table = contentT.querySelector("table");
+
+			// 해당 row 삭제
+			row.parentNode.removeChild(row);
+
+			// 나머지 행들의 index 및 form의 content 업데이트
+			for (var i = rowIndex; i < table.rows.length; i++) {
+				var inputName = "content" + (i + 2); // 기존 input의 이름
+				var newInputName = "content" + (i + 1); // 새로운 input의 이름
+
+				// 행의 label 및 input 업데이트
+				var label = table.rows[i].cells[0].querySelector("span");
+				label.innerText = "content" + (i + 1) + ": ";
+				var input = table.rows[i].cells[0].querySelector("input");
+				input.name = newInputName;
+
+				// form의 'content' 요소 업데이트
+				var existingInput = form.querySelector("input[name='" + inputName + "']");
+				if (existingInput) {
+					existingInput.name = newInputName;
+				}
+			}
+		}
+
+		function updateFormData() {
+			var form = document.getElementById("policyForm");
+			var contentT = document.getElementById("result");
+			var table = contentT.querySelector("table");
+
+			// 기존 input 제거
+			var existingInputs = form.querySelectorAll("input[name^='content']");
+			existingInputs.forEach(function (existingInput) {
+				existingInput.parentNode.removeChild(existingInput);
+			});
+
+			// Form에 값을 추가하거나 업데이트
+			for (var i = 0; i < table.rows.length; i++) {
+				var inputName = "content" + (i + 1);
+				var existingInput = form.querySelector("input[name='" + inputName + "']");
+
+				if (existingInput) {
+					// 이미 있는 경우 값만 업데이트
+					existingInput.value = table.rows[i].cells[0].querySelector("span").innerText;
+				} else {
+					// 없는 경우 새로 추가
+					var input = document.createElement("input");
+					input.type = "hidden";
+					input.name = inputName;
+					input.value = table.rows[i].cells[0].querySelector("span").innerText;
+					form.appendChild(input);
+				}
+			}
+
+			// 삭제 버튼 업데이트
+			updateDeleteButton();
+		}
+
+		function updateDeleteButton() {
+			var contentT = document.getElementById("result");
+			var rows = contentT.getElementsByTagName("tr");
+
+			var hasContent = false;
+			for (var i = 0; i < rows.length; i++) {
+				var span = rows[i].getElementsByTagName("span")[0];
+				if (span && span.innerText) {
+					hasContent = true;
+					break;
+				}
+			}
+
+			var deleteButton = document.getElementById("deleteButton");
+			if (deleteButton) {
+				if (hasContent) {
+					deleteButton.hidden = false;
+				} else {
+					deleteButton.hidden = true;
+				}
+			}
+		}
+
+
+
+		function cancel() {
+			window.location.href = "/admin/menu/readPolicy";
+		}
+	</script>
+</body>
+
+</html>

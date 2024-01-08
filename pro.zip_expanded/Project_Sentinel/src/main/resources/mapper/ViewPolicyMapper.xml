@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "C:/Users/chlru/Desktop/Study/Java/Library/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.policy.ViewPolicyMapper">
+    <select id="getPolicyPrintAll" resultType="com.example.demo.model.policy.ViewPolicyEntity">
+        SELECT * FROM ips_policy WHERE detected_no = #{detected_no}
+    </select>
+</mapper>

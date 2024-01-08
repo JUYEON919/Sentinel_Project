@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/css/commonStyle.css">
+	<link rel="stylesheet" href="/css/readLogsStyle.css">
+	<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+	<link rel="manifest" href="/json/manifest.json">
+
+	<!-- jQuery 및 jQuery-UI 라이브러리 포함 -->
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	<!-- datepicker 및 timepicker 포함 -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/i18n/datepicker-ko.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/i18n/jquery-ui-timepicker-ko.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css">
+
+	<!-- Datepicker 적용 스크립트 -->
+	<script>
+		$.datepicker.setDefaults({
+			showButtonPanel: true,
+			controlType: 'select',
+			closeText: "적용",
+			currentText: "오늘",
+			prevText: '이전 달',
+			nextText: '다음 달',
+			monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+			monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+			dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+			dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+			dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+			weekHeader: "주",
+			yearSuffix: '년'
+		});
+
+		$(function () {
+			var today = new Date();
+
+			$("#startDate").datepicker({
+				dateFormat: "yy-mm-dd",
+				maxDate: today,
+				onSelect: function (selectedDate) {
+					$("#endDate").datepicker("option", "minDate", selectedDate);
+				},
+				onClose: function (selectedDate) {
+					if (new Date(selectedDate) > new Date($("#endDate").val())) {
+						alert("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
+						$("#startDate").datepicker("setDate", $("#endDate").val());
+					}
+				}
+			});
+
+			$("#endDate").datepicker({
+				dateFormat: "yy-mm-dd",
+				maxDate: today,
+				onSelect: function (selectedDate) {
+					$("#startDate").datepicker("option", "maxDate", selectedDate);
+				},
+				onClose: function (selectedDate) {
+					if (new Date(selectedDate) < new Date($("#startDate").val())) {
+						alert("종료 날짜는 시작 날짜보다 이전일 수 없습니다.");
+						$("#endDate").datepicker("setDate", $("#startDate").val());
+					}
+				}
+			});
+
+			$.timepicker.setDefaults($.timepicker.regional['ko']);
+
+			$("#startTime, #endTime").timepicker({
+				timeFormat: 'HH:mm:ss',
+				controlType: 'select',
+				closeText: "적용",
+				currentText: "현재 시각",
+				oneLine: true,
+				timeInput: true,
+				showButtonPanel: true,
+				stepHour: 1,
+				stepMinute: 1,
+				stepSecond: 1,
+			});
+
+			$("#startTime").change(function () {
+				if ($("#startDate").val() == $("#endDate").val() && $("#startTime").val() > $("#endTime").val()) {
+					alert("시작 시간은 종료 시간보다 이후일 수 없습니다");
+					$("#startTime").val($("#endTime").val());
+				}
+			});
+
+			$("#endTime").change(function () {
+				if ($("#startDate").val() == $("#endDate").val() && $("#endTime").val() < $("#startTime").val()) {
+					alert("종료 시간은 시작 시간보다 이전일 수 없습니다");
+					$("#endTime").val($("#startTime").val());
+				}
+			});
+		});
+
+		$(function () {
+			var currentPage = 1;
+			var numPerPage = 10;
+			var fixedRowHeight = 40; // 고정할 행의 높이
+
+			function isValidIp(ip) {
+				var pattern = new RegExp(/^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$/);
+				return pattern.test(ip) || ip === "0" || ip.toLowerCase() === "any";
+			}
+
+			function isValidPort(port) {
+				var pattern = new RegExp(/^[0-9]{1,5}$/);
+				return pattern.test(port) && (0 <= port && port <= 65535) || port.toLowerCase() === "any";
+			}
+
+			function leadLogs(currentPage) {
+				$.ajax({
+					url: '/admin/menu/readLogs/api/getLogList',
+					method: 'GET',
+					data: $('form').serialize() + '&page=' + currentPage + '&numPerPage=' + numPerPage,
+					success: function (data) {
+						$('#logTable').empty();
+
+						var totalLogCount = data.totalLogCount;
+						var logs = data.readLogs;
+
+						$('.log-count').text('검색된 로그는 총  ' + totalLogCount + '개 입니다.');
+
+						if (data.length === 0) {
+							// 이 부분 추후 수정 필요
+							// 검색 결과가 0건이라면 아래와 같은 메세지가 리스트에 출력 되도록 수정
+							$('#logTable').append('<tr><td colspan="8" style="text-align: center; color: gray; font-size: 26px;">검색 결과가 없습니다.</td></tr>');
+						} else {
+							logs.forEach(function (log) {
+								var row = $('<tr>');
+								row.append($('<td>').text(log.log_index));
+								row.append($('<td>').text(log.log_date));
+								row.append($('<td>').text(log.detected_name));
+								var resultLevel = '';
+								switch (log.level) {
+									case -1:
+										resultLevel = '전체';
+										break;
+									case 0:
+										resultLevel = '하';
+										break;
+									case 1:
+										resultLevel = '중';
+										break;
+									case 2:
+										resultLevel = '상';
+										break;
+									case 3:
+										resultLevel = '최상';
+										break;
+								}
+								row.append($('<td>').text(resultLevel));
+								row.append($('<td>').text(log.src_ip));
+								row.append($('<td>').text(log.src_port));
+								row.append($('<td>').text(log.dst_ip));
+								row.append($('<td>').text(log.dst_port));
+								var resultAction = '';
+								switch (log.action) {
+									case -1:
+										resultAction = '전체';
+										break;
+									case 0:
+										resultAction = '로그';
+										break;
+									case 1:
+										resultAction = '로그+차단';
+										break;
+								}
+								row.append($('<td>').text(resultAction));
+								var buttonCell = $('<td>');
+								var button = $('<button>').text('상세보기').addClass('infoBt').on('click', function () {
+									window.location.href = '/admin/menu/readLogs/viewLogs/' + log.log_date + '/' + log.log_index;
+								});
+								buttonCell.append(button);
+								row.append(buttonCell);
+								$('#logTable').append(row);
+							});
+							// 현재 페이지의 행 수
+							var currentPageRowCount = Math.min(numPerPage, logs.length);
+
+							// 남은 빈 행 수
+							var remainingEmptyRows = numPerPage - currentPageRowCount;
+
+							// 빈 행 추가
+							for (var i = 0; i < remainingEmptyRows; i++) {
+								var emptyRow = $('<tr>').css('height', fixedRowHeight + 'px');
+								$('#logTable').append(emptyRow);
+							}
+
+							$('#page-num').text(currentPage + '번 페이지');
+						}
+
+						if (currentPage * numPerPage >= totalLogCount) {
+							$('.nextB').hide();
+						} else {
+							$('.nextB').show();
+						}
+					}
+				});
+			}
+
+			leadLogs(currentPage);
+
+			$('#logForm').on('submit', function (e) {
+				e.preventDefault();
+				currentPage = 1;
+
+				var src_ip = $('#src_ip').val();
+				var src_port = $('#src_port').val();
+				var dst_ip = $('#dst_ip').val();
+				var dst_port = $('#dst_port').val();
+				var detected_name = $('#detected_name').val();
+
+				if (!isValidIp(src_ip)) {
+					alert('출발지 IP 형식이 올바르지 않습니다. 올바른 IP 형식을 입력해주세요.');
+					return;
+				}
+				if (!isValidPort(src_port)) {
+					alert('출발지 Port 형식이 올바르지 않습니다. 올바른 Port 형식을 입력해주세요.');
+					return;
+				}
+				if (!isValidIp(dst_ip)) {
+					alert('도착지 IP 형식이 올바르지 않습니다. 올바른 IP 형식을 입력해주세요.');
+					return;
+				}
+				if (!isValidPort(dst_port)) {
+					alert('도착지 Port 형식이 올바르지 않습니다. 올바른 Port 형식을 입력해주세요.');
+					return;
+				}
+				
+				if (!$('#src_ip').val()) {
+					$('#src_ip').val('any');
+				}
+				if (!$('#src_port').val()) {
+					$('#src_port').val('any');
+				}
+				if (!$('#dst_ip').val()) {
+					$('#dst_ip').val('any');
+				}
+				if (!$('#dst_port').val()) {
+					$('#dst_port').val('any');
+				}
+				if (!$('#detected_name').val()) {
+					$('#detected_name').val('any');
+				}
+				if ($('#level').val() === null) {
+					$('#level').val('-1');
+				}
+				if ($('#action').val() === null) {
+					$('#action').val('-1');
+				}
+				if (!$('#startDate').val()) {
+					$('#startDate').val('${today}');
+				}
+				if (!$('#startTime').val()) {
+					$('#startTime').val('00:00:00');
+				}
+				if (!$('#endDate').val()) {
+					$('#endDate').val('${today}');
+				}
+				if (!$('#endTime').val()) {
+					$('#endTime').val('23:59:59');
+				}
+
+				leadLogs(currentPage);
+			});
+
+			$('.nextB').on('click', function () {
+				currentPage += 1;
+				leadLogs(currentPage);
+			});
+
+			$('.prevB').on('click', function () {
+				if (currentPage > 1) {
+					currentPage -= 1;
+					leadLogs(currentPage);
+				}
+			});
+		});
+
+		function resetFilters() {
+			var today = new Date().toISOString().slice(0, 10);
+			$("#src_ip").val('any');
+			$("#src_port").val('any');
+			$("#dst_ip").val('any');
+			$("#dst_port").val('any');
+			$("#detected_name").val('any');
+			$("#level").val('-1');
+			$("#action").val('-1');
+			$("#startDate").val(today);
+			$("#startTime").val('00:00:00');
+			$("#endDate").val(today);
+			$("#endTime").val('23:59:59');
+			return false;
+		}
+	</script>
+
+	<title>Sentinel</title>
+</head>
+
+<body>
+	<header>
+		<div class="hline">
+			<h1>로그조회</h1>
+		</div>
+		<div class="log-count">
+			<!-- 검색된 로그의 총 개수가 여기에 출력됨 -->
+		</div>
+	</header>
+	<div class="log-list-filter">
+		<div class="hline_filter">
+			<h3>필터</h3>
+		</div>
+		
+		<form th:action="@{/admin/menu/readLogs}" id="logForm" method="get">
+			<div class="lft">
+				<div class="input-group">
+					<label for="detected_name">탐지명:</label>
+					<input class="custom-input-group" type="text" id="detected_name" name="detected_name"
+						th:value="${detected_name!=null}?${detected_name}:'any'">
+				</div>
+				
+				
+				<div class="input-group">
+					<label for="src_ip">출발지 IP:</label>
+					<input type="text" id="src_ip" name="src_ip" th:value="${src_ip!=null}?${src_ip}:'any'">
+				</div>
+
+				<div class="input-group">
+					<label for="src_port">출발지 Port:</label>
+					<input type="text" id="src_port" name="src_port" th:value="${src_port!=null}?${src_port}:'any'">
+				</div>
+
+				
+			</div>
+			<div class="cen">
+				
+
+				<div class="input-group">
+					<label for="level">위험등급:</label>
+					<select id="level" name="level" class="custom-input-group">
+						<option value="-1" th:selected="${level == -1}">전체</option>
+						<option value="0" th:selected="${level == 0}">하</option>
+						<option value="1" th:selected="${level == 1}">중</option>
+						<option value="2" th:selected="${level == 2}">상</option>
+						<option value="3" th:selected="${level == 3}">최상</option>
+					</select>
+				</div>
+				
+				<div class="input-group">
+					<label for="dst_ip">도착지 IP:</label>
+					<input type="text" id="dst_ip" name="dst_ip" th:value="${dst_ip!=null}?${dst_ip}:'any'">
+				</div>
+				
+				<div class="input-group">
+					<label for="dst_port">도착지 Port:</label>
+					<input type="text" id="dst_port" name="dst_port" th:value="${dst_ip!=null}?${dst_ip}:'any'">
+				</div>
+
+				
+			</div>
+			<div class="rft">
+				<div class="input-group">
+					<label for="action">동작:</label>
+					<select id="action" name="action" class="custom-input-group">
+						<option value="-1" th:selected="${action == -1}">전체</option>
+						<option value="0" th:selected="${action == 0}">로그</option>
+						<option value="1" th:selected="${action == 1}">로그+차단</option>
+					</select>
+				</div>
+				
+				<div class="input-group datepicker">
+					<label for="startDate">시작 지점 날짜:</label>
+					<input type="text" id="startDate" name="startDate" class="datepicker"
+						th:value="${startDate!=null}?${startDate}:${today}" readonly>
+					<input type="text" id="startTime" name="startTime" class="timepicker"
+						th:value="${startTime!=null}?${startTime}:'00:00:00'" readonly>
+				</div>
+
+				<div class="input-group datepicker">
+					<label for="endDate">종료 지점 날짜:</label>
+					<input type="text" id="endDate" name="endDate" class="datepicker"
+						th:value="${endDate!=null}?${endDate}:${today}" readonly>
+					<input type="text" id="endTime" name="endTime" class="timepicker"
+						th:value="${endTime!=null}?${endTime}:'23:59:59'" readonly>
+				</div>
+
+				<div class="button-group">
+					<button class="button2 applyB" type="submit">조회</button>
+					<button class="button2 resetB" type="button" onclick="resetFilters()">초기화</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="logListBox">
+		<table>
+			<thead>
+				<tr>
+					<th style="width: 50px;">No</th>
+					<th style="width: 150px;">시간</th>
+					<th style="width: 120px;">내용</th>
+					<th style="width: 80px;">위험등급</th>
+					<th style="width: 120px;">출발지 IP</th>
+					<th style="width: 120px;">출발지 Port</th>
+					<th style="width: 120px;">도착지 IP</th>
+					<th style="width: 120px;">도착지 Port</th>
+					<th style="width: 100px;">동작</th>
+					<th style="width: 100px;">버튼 </th>
+				</tr>
+			</thead>
+			<tbody id="logTable">
+				<!-- 여기에 로그가 동적으로 추가됨 -->
+			</tbody>
+		</table>
+		<div class="logBottom">
+			<div>
+				<!-- 검색된 로그의 총 개수가 여기에 출력됨 -->
+			</div>
+			<div id="pagination">
+				<button class="prevB">이전</button>
+				<span id="page-num"></span>
+				<button class="nextB">다음</button>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
