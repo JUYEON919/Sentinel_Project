@@ -10,11 +10,12 @@
   - 2023.11.07 ~ 2024.01.02
 
 ### 🧑‍🤝‍🧑 멤버구성
+  -내가 맡은 업무
+Sentinel<Member> 한주연 = new Sentinel<Member>("탐지 엔진 개발", "관리자 UI/UX 개발", "관리자 UI/UX 디자인");
 ```java
 Sentinel<Leader> 박희승 = new Sentinel<Leader>("프로젝트 관리", "탐지 엔진 개발");
 Sentinel<Member> 정찬진 = new Sentinel<Member>("탐지 엔진 개발");
 Sentinel<Member> 최경호 = new Sentinel<Member>("관리자 UI/UX 개발", "관리자 UI/UX 디자인");
-Sentinel<Member> 한주연 = new Sentinel<Member>("관리자 UI/UX 개발", "관리자 UI/UX 디자인");
 Sentinel<Member> 양주목 = new Sentinel<Member>("관리자 UI/UX 디자인");
 ```
 
@@ -55,7 +56,7 @@ const Sentienl = {
 <img src="https://github.com/JUYEON919/Sentinel_Project/blob/master/pro.zip_expanded/Project_Sentinel/src/main/resources/static/img/화면_홈.png"/><br>
 <img src="https://github.com/JUYEON919/Sentinel_Project/blob/master/pro.zip_expanded/Project_Sentinel/src/main/resources/static/img/화면_정책리스트.png" alt="정책 관리 화면"/><br>
 <img src="https://github.com/JUYEON919/Sentinel_Project/blob/master/pro.zip_expanded/Project_Sentinel/src/main/resources/static/img/화면_로그리스트.png" alt="로그 조회 화면"/><br>
-<img src="https://github.com/JUYEON919/Sentinel_Projectl/blob/master/pro.zip_expanded/Project_Sentinel/src/main/resources/static/img/화면_상세로그.png" alt="상세 로그 조회 화면"/>
+<img src="https://github.com/JUYEON919/Sentinel_Project/blob/master/pro.zip_expanded/Project_Sentinel/src/main/resources/static/img/화면_상세로그.png" alt="상세 로그 조회 화면"/>
 
 ### 📞 연락처
   - **Naver:** wndus5357@naver.com
